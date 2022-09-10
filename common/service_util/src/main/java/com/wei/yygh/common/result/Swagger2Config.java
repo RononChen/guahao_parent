@@ -1,4 +1,4 @@
-package com.wei.yygh.common.config;
+package com.wei.yygh.common.result;
 
 import com.google.common.base.Predicates;
 import org.springframework.context.annotation.Bean;
