@@ -1,7 +1,9 @@
 package com.wei.guahao.config;
 
 
+import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,4 +16,12 @@ import org.springframework.context.annotation.Configuration;
 //定义扫描的路径从中找出 标识了需要装配的类 自动装配到spring的bean容器中
 @ComponentScan(basePackages = "com.wei")
 public class HospitalSetConfig {
+
+//    添加分页插件
+    @Bean
+    public PaginationInterceptor paginationInterceptor(){
+        return new PaginationInterceptor();
+    }
+
+
 }

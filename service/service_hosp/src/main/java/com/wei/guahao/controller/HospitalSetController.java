@@ -25,6 +25,8 @@ import java.util.Random;
 @Api(tags = "这是医院设置类")
 @RestController
 @RequestMapping("/admin/hosp/hospitalSet")
+//跨域
+@CrossOrigin
 public class HospitalSetController {
 
     @Autowired
@@ -100,7 +102,7 @@ public class HospitalSetController {
     @GetMapping("{id}")
     public Result selectHospitalSetById(@PathVariable long id){
         try{
-            int a = 9 / 0;
+//            int a = 9 / 0;
         }catch (Exception e){
             throw new YyghException("不可以除以0",201);
         }
@@ -140,7 +142,8 @@ public class HospitalSetController {
 //        8.1、根据id查询 医院设置
         HospitalSet hospitalSet = hospitalSetService.getById(id);
 //        8.2、修改医院设置的状态
-        hospitalSet.setStatus(1);
+
+        hospitalSet.setStatus(status);
 //        8.3、更新这个  医院设置
         hospitalSetService.updateById(hospitalSet);
         return Result.ok();
