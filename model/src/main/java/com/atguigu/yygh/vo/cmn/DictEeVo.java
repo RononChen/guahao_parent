@@ -13,7 +13,6 @@ import lombok.Data;
  */
 @Data
 public class DictEeVo {
-
 	@ExcelProperty(value = "id" ,index = 0)
 	private Long id;
 
@@ -28,6 +27,5 @@ public class DictEeVo {
 
 	@ExcelProperty(value = "编码" ,index = 4)
 	private String dictCode;
-
 }
 

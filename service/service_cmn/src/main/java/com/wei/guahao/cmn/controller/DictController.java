@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Api("数据字典模块")
@@ -27,5 +28,17 @@ public class DictController {
     public Result selectChildData(@PathVariable long id){
         List<Dict> dictList =  dictService.selectChildData(id);
         return Result.ok(dictList);
+    }
+
+    /**
+     *  因为没有数据返回，所以返回值使用void
+     * @param response  返回给前端的响应 在这里面可以做设置 下载文件。
+     *                  使用HttpServletResponse对象实现文件的下载
+     */
+    @ApiOperation(value = "导出数据字典")
+    @GetMapping("/exportDate")
+    public void exportDate(HttpServletResponse response){
+//        调用service层的方法
+        dictService.exportDate(response);
     }
 }

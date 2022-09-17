@@ -1,15 +1,26 @@
 package com.wei.guahao.cmn.service.impl;
 
 
+import com.alibaba.excel.EasyExcel;
 import com.atguigu.yygh.model.cmn.Dict;
 
+import com.atguigu.yygh.vo.cmn.DictEeVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+
 import com.wei.guahao.cmn.mapper.DictMapper;
 import com.wei.guahao.cmn.service.DictService;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,7 +40,8 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         return dictList;
     }
 
-//    上边是把数据库的字段和Dict做了一个映射。
+
+    //    上边是把数据库的字段和Dict做了一个映射。
 //    Dict中的 private boolean hasChildren并没有映射。
 //    id下面是否有子节点
     private boolean isHasChildren(long id){
@@ -37,6 +49,50 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         queryWrapper.eq("parent_id",id);
         Integer i = baseMapper.selectCount(queryWrapper);
         return i > 0;
+    }
+
+
+    //    导出数据字典
+    @Override
+    public void exportDate(HttpServletResponse response)  {
+//        设置下载信息
+//        1、设置下载的文件类型是excel
+        response.setContentType("application/vnd.ms-excel");
+//        2、设置发送到客户端的响应的字符编码，通知浏览器以utf-8的
+//        编码格式解析响应正文(也就是excel文件中的内容)
+        response.setCharacterEncoding("utf-8");
+
+//        3、文件下载需要设置响应头信息
+        // URLEncoder.encode可以防止文件名称中文乱码
+        String fileName = null;
+        try {
+            fileName = URLEncoder.encode("数据字典", "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+//        String fileName = "niko";
+        response.setHeader("Content-disposition", "attachment;filename="+ fileName + ".xlsx");
+
+//        5、获取数据字典中多有的内容
+        List<Dict> dictList = baseMapper.selectList(null);
+        ArrayList<DictEeVo> dictEeVoList = new ArrayList<>();
+//        集合中的数据类型是Dict，写入到excel文件中的数据类型是DictEeVo，需要转换
+        for (Dict dict : dictList) {
+            DictEeVo dictEeVo = new DictEeVo();
+//            spring提供的工具类BeanUtils
+            BeanUtils.copyProperties(dict,dictEeVo);
+            dictEeVoList.add(dictEeVo);
+        }
+//        4、使用easyexcel导出文件
+        try {
+            /**
+             *  下载文件： 对服务器端而言，是使用输出流，写入到指定的文件中
+             *  写的对象类型  DictEeVo
+             */
+            EasyExcel.write(response.getOutputStream(), DictEeVo.class).sheet().doWrite(dictEeVoList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
