@@ -9,11 +9,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 
+import com.wei.guahao.cmn.listener.DictListener;
 import com.wei.guahao.cmn.mapper.DictMapper;
 import com.wei.guahao.cmn.service.DictService;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -90,6 +92,22 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
              *  写的对象类型  DictEeVo
              */
             EasyExcel.write(response.getOutputStream(), DictEeVo.class).sheet().doWrite(dictEeVoList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    导入数据字典
+    @Override
+    public void importData(MultipartFile file) {
+        try {
+//            对于服务端而言，读取excel文件以输入流的方式传递过来
+            /** InputStream inputStream：输入流
+             *  Class head： 读取的类型
+             *  ReadListener readListener  自定义监听器
+             */
+            EasyExcel.read(file.getInputStream(),DictEeVo.class,new DictListener(baseMapper))
+                    .sheet().doRead();
         } catch (IOException e) {
             e.printStackTrace();
         }

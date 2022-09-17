@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -40,5 +41,13 @@ public class DictController {
     public void exportDate(HttpServletResponse response){
 //        调用service层的方法
         dictService.exportDate(response);
+    }
+
+//    文件上传使用Spring的MultipartFile
+    @ApiOperation(value = "导入数据字典")
+    @PostMapping("/importData")
+    public Result importData(MultipartFile file){
+        dictService.importData(file);
+        return Result.ok();
     }
 }
