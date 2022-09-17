@@ -29,7 +29,8 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         return dictList;
     }
 
-//    上边是把数据库的字段和Dict做了一个映射。 Dict中的 private boolean hasChildren并没有映射。
+//    上边是把数据库的字段和Dict做了一个映射。
+//    Dict中的 private boolean hasChildren并没有映射。
 //    id下面是否有子节点
     private boolean isHasChildren(long id){
         QueryWrapper<Dict> queryWrapper = new QueryWrapper();
