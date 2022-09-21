@@ -14,6 +14,8 @@ import com.wei.guahao.cmn.mapper.DictMapper;
 import com.wei.guahao.cmn.service.DictService;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +31,7 @@ import java.util.List;
 public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
 
     @Override
+    @Cacheable(value = "dict",keyGenerator = "keyGenerator")
     public List<Dict> selectChildData(long id) {
         QueryWrapper<Dict> queryWrapper = new QueryWrapper();
         queryWrapper.eq("parent_id",id);

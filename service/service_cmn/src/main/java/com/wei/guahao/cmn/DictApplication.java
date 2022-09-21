@@ -13,6 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 @MapperScan(value = {"com.wei.guahao.cmn.mapper"})
 public class DictApplication {
 
+
     public static void main(String[] args) {
         SpringApplication.run(DictApplication.class,args);
     }

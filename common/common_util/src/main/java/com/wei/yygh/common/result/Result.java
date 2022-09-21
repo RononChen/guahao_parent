@@ -39,6 +39,7 @@ public class Result<T> {
     public static <T> Result<T> build(Integer code, String message) {
         Result<T> result = build(null);
         result.setCode(code);
+
         result.setMessage(message);
         return result;
     }
@@ -85,6 +86,7 @@ public class Result<T> {
 
     public boolean isOk() {
         if(this.getCode().intValue() == ResultCodeEnum.SUCCESS.getCode().intValue()) {
+            System.out.println("cesi");
             return true;
         }
         return false;
