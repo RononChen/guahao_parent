@@ -6,7 +6,7 @@
         <module>common</module>
         <module>model</module>
         <module>service</module>
-<!--我想提交下github代码-->
+
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

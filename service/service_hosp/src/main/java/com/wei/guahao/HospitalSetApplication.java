@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class HospitalSetApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(HospitalSetApplication.class);
+        SpringApplication.run(HospitalSetApplication.class,args);
     }
 
 }

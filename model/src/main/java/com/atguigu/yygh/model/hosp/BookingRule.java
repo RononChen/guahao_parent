@@ -47,7 +47,7 @@ public class BookingRule {
 
 	/**
 	 *
-	 * @param rule
+	 *   rule为一个数组属性，在转换时我们要重新对应set方法，不然转换不会成功
 	 */
 	public void setRule(String rule) {
 		if(!StringUtils.isEmpty(rule)) {

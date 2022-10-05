@@ -23,5 +23,4 @@ public class HospitalSetConfig {
         return new PaginationInterceptor();
     }
 
-
 }

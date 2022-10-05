@@ -64,6 +64,7 @@ public class Hospital extends BaseMongoEntity {
 	@ApiModelProperty(value = "预约规则")
 	private BookingRule bookingRule;
 
+//	预约规则bookingRule为一个对象属性，在转换时我们要重新对应set方法，不然转换不会成功
 	public void setBookingRule(String bookingRule) {
 		this.bookingRule = JSONObject.parseObject(bookingRule, BookingRule.class);
 	}
