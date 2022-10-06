@@ -45,10 +45,7 @@ public class BookingRule {
 	@ApiModelProperty(value = "预约规则")
 	private List<String> rule;
 
-	/**
-	 *
-	 *   rule为一个数组属性，在转换时我们要重新对应set方法，不然转换不会成功
-	 */
+//	rule为一个数组属性，在转换时我们要重新对应set方法，不然转换不会成功
 	public void setRule(String rule) {
 		if(!StringUtils.isEmpty(rule)) {
 			this.rule = JSONArray.parseArray(rule, String.class);

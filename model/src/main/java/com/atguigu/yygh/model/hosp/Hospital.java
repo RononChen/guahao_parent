@@ -18,6 +18,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
  *
  * @author qy
  */
+//在 MongoDB 中, 数据库和集合都不需要手动创建, 当我们创建文档时,
+//如果文档所在的集合或者数据库不存在, 则会自动创建数据库或者集合
 @Data
 @ApiModel(description = "Hospital")
 @Document("Hospital")

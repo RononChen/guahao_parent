@@ -1,7 +1,9 @@
 package com.wei.guahao.controller.api;
 
 
+import com.atguigu.yygh.model.hosp.Hospital;
 import com.wei.guahao.service.HospitalService;
+import com.wei.guahao.service.HospitalSetService;
 import com.wei.yygh.common.exception.YyghException;
 import com.wei.yygh.common.helper.HttpRequestHelper;
 import com.wei.yygh.common.result.Result;
@@ -23,34 +25,70 @@ import java.util.Map;
 @Api(tags = "这是医院类")
 public class ApiController {
 
+//    导入HospitalService
     @Autowired
     private HospitalService hospitalService;
 
-    @PostMapping("/saveHospital")
-    @ApiOperation(value = "保存医院")
-    public Result saveHospital(HttpServletRequest request){
-//        获取请求参数map
-        Map<String, String[]> requestMap = request.getParameterMap();
-//        将<String, String[]>类型的数组转换为<String, Object>类型的数组
-        Map<String, Object> paramMap = HttpRequestHelper.switchMap(requestMap);
-        //1 获取医院系统传递过来的签名,签名进行了MD5加密
-        String hospSign = (String)paramMap.get("sign");
-        //2 根据传递过来医院编码，查询医院设置数据库，查询签名
-        String hoscode = (String)paramMap.get("hoscode");
-//        String signKey = hospitalSetService.getSignKey(hoscode);
-        //3 把数据库查询签名进行MD5加密
-//        String signKeyMd5 = MD5.encrypt(signKey);
-        //4 判断签名是否一致
-//        if(!hospSign.equals(signKeyMd5)) {
-//            throw new YyghException(ResultCodeEnum.SIGN_ERROR);
-//        }
+//    导入HospitalService
+    @Autowired
+    private HospitalSetService hospitalSetService;
 
-        //小的图片使用base64编码，传输过程中“+”转换为了“ ”，因此我们要转换回来
+    @ApiOperation(value = "查询医院")
+    @PostMapping("/hospital/show")
+    public Result getHospital(HttpServletRequest request){
+
+//        1、获取请求参数map
+        Map<String, String[]> requestMap = request.getParameterMap();
+//        2、将<String, String[]>类型的数组转换为<String, Object>类型的数组
+        Map<String, Object> paramMap = HttpRequestHelper.switchMap(requestMap);
+
+        //4 获取医院系统传递过来的签名,签名进行了MD5加密
+        String hospSign = (String)paramMap.get("sign");
+        //5 根据传递过来医院编码，查询医院设置数据库，查询签名
+        String hoscode = (String)paramMap.get("hoscode");
+//        6 通过医院编码获取签名
+        String signKey = hospitalSetService.getSignKey(hoscode);
+        //7 把数据库查询签名进行MD5加密
+        String signKeyMd5 = MD5.encrypt(signKey);
+        //8 判断签名是否一致 不一致抛出签名错误
+        if(!hospSign.equals(signKeyMd5)) {
+            throw new YyghException(ResultCodeEnum.SIGN_ERROR);
+        }
+
+//        9 根据传递过来的医院编码  获取医院信息
+        Hospital hospital = hospitalService.getHospital(hoscode);
+
+        return Result.ok(hospital);
+    }
+
+    @PostMapping("/saveHospital")
+    @ApiOperation(value = "上传医院")
+    public Result saveHospital(HttpServletRequest request){
+
+//        1、获取请求参数map
+        Map<String, String[]> requestMap = request.getParameterMap();
+//        2、将<String, String[]>类型的数组转换为<String, Object>类型的数组
+        Map<String, Object> paramMap = HttpRequestHelper.switchMap(requestMap);
+
+        //4 获取医院系统传递过来的签名,签名进行了MD5加密
+        String hospSign = (String)paramMap.get("sign");
+        //5 根据传递过来医院编码，查询医院设置数据库，查询签名
+        String hoscode = (String)paramMap.get("hoscode");
+//        6 通过医院编码获取签名
+        String signKey = hospitalSetService.getSignKey(hoscode);
+        //7 把数据库查询签名进行MD5加密
+        String signKeyMd5 = MD5.encrypt(signKey);
+        //8 判断签名是否一致 不一致抛出签名错误
+        if(!hospSign.equals(signKeyMd5)) {
+            throw new YyghException(ResultCodeEnum.SIGN_ERROR);
+        }
+
+        //9 小的图片使用base64编码，传输过程中“+”转换为了“ ”，因此我们要转换回来
         String logoData = (String)paramMap.get("logoData");
         logoData = logoData.replaceAll(" ","+");
         paramMap.put("logoData",logoData);
 
-//        进行保存
+//        3、进行保存
         hospitalService.save(paramMap);
         return Result.ok();
     }
