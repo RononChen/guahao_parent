@@ -32,7 +32,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 //        2 通过医院编号和科室编号查询是否有科室数据  有就更新 没有就保存
         Department departmentExist =
-                departmentRepository.getDepartmentByHoscodeAndDepcode(department.getHoscode(),department.getDepcode());
+                departmentRepository.getDepartmentByHoscodeAndDepcode(
+                        department.getHoscode(),department.getDepcode());
 
 //        3 有数据 更新操作
         if (departmentExist != null){
@@ -52,8 +53,8 @@ public class DepartmentServiceImpl implements DepartmentService {
 
 //    分页查询科室信息
     @Override
-    public Page<Department> findDepartment(int page, int limit, DepartmentQueryVo departmentQueryVo) {
-
+    public Page<Department> findDepartment(int page, int limit,
+                                           DepartmentQueryVo departmentQueryVo) {
 //        分页 模糊查询
 //        分页
         Pageable pageable = PageRequest.of(page, limit);
@@ -76,7 +77,8 @@ public class DepartmentServiceImpl implements DepartmentService {
     public void removeDepartment(String hoscode, String depcode) {
 
 //        首先是根据医院编码和科室编码查询下有没有科室信息 有才能删除
-        Department department = departmentRepository.getDepartmentByHoscodeAndDepcode(hoscode, depcode);
+        Department department =
+                departmentRepository.getDepartmentByHoscodeAndDepcode(hoscode, depcode);
 
         if (department != null){
             departmentRepository.deleteById(department.getId());

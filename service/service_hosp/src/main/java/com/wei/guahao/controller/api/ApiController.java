@@ -3,10 +3,13 @@ package com.wei.guahao.controller.api;
 
 import com.atguigu.yygh.model.hosp.Department;
 import com.atguigu.yygh.model.hosp.Hospital;
+import com.atguigu.yygh.model.hosp.Schedule;
 import com.atguigu.yygh.vo.hosp.DepartmentQueryVo;
+import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
 import com.wei.guahao.service.DepartmentService;
 import com.wei.guahao.service.HospitalService;
 import com.wei.guahao.service.HospitalSetService;
+import com.wei.guahao.service.ScheduleService;
 import com.wei.yygh.common.exception.YyghException;
 import com.wei.yygh.common.helper.HttpRequestHelper;
 import com.wei.yygh.common.result.Result;
@@ -41,10 +44,110 @@ public class ApiController {
     @Autowired
     private DepartmentService departmentService;
 
+    @Autowired
+    private ScheduleService scheduleService;
+
+
+    @ApiOperation(value = "删除排班")
+    @PostMapping("/schedule/remove")
+    public Result removeSchedule(HttpServletRequest request){
+        //        1、获取请求参数map
+        Map<String, String[]> requestMap = request.getParameterMap();
+//        2、将<String, String[]>类型的数组转换为<String, Object>类型的数组
+        Map<String, Object> paramMap = HttpRequestHelper.switchMap(requestMap);
+
+        //4 获取医院系统传递过来的签名,签名进行了MD5加密
+        String hospSign = (String)paramMap.get("sign");
+        //5 根据传递过来医院编码，查询医院设置数据库，查询签名
+        String hoscode = (String)paramMap.get("hoscode");
+//        6 通过医院编码获取签名
+        String signKey = hospitalSetService.getSignKey(hoscode);
+        //7 把数据库查询签名进行MD5加密
+        String signKeyMd5 = MD5.encrypt(signKey);
+        //8 判断签名是否一致 不一致抛出签名错误
+        if(!hospSign.equals(signKeyMd5)) {
+            throw new YyghException(ResultCodeEnum.SIGN_ERROR);
+        }
+
+//        9 删除排班信息
+        String hosScheduleId = (String) paramMap.get("hosScheduleId");
+        scheduleService.removeSchedule(hoscode,hosScheduleId);
+        return Result.ok();
+
+    }
+
+    @ApiOperation(value = "查询排班")
+    @PostMapping("/schedule/list")
+    public Result findSchedule(HttpServletRequest request){
+//        1、获取请求参数map
+        Map<String, String[]> requestMap = request.getParameterMap();
+//        2、将<String, String[]>类型的数组转换为<String, Object>类型的数组
+        Map<String, Object> paramMap = HttpRequestHelper.switchMap(requestMap);
+
+        //4 获取医院系统传递过来的签名,签名进行了MD5加密
+        String hospSign = (String)paramMap.get("sign");
+        //5 根据传递过来医院编码，查询医院设置数据库，查询签名
+        String hoscode = (String)paramMap.get("hoscode");
+//        6 通过医院编码获取签名
+        String signKey = hospitalSetService.getSignKey(hoscode);
+        //7 把数据库查询签名进行MD5加密
+        String signKeyMd5 = MD5.encrypt(signKey);
+        //8 判断签名是否一致 不一致抛出签名错误
+        if(!hospSign.equals(signKeyMd5)) {
+            throw new YyghException(ResultCodeEnum.SIGN_ERROR);
+        }
+
+//        9 分页查询排班信息
+//        封装一个scheduleQueryVo查询条件 传递到service层
+        ScheduleQueryVo scheduleQueryVo = new ScheduleQueryVo();
+        scheduleQueryVo.setHoscode(hoscode);
+//        页数
+        String pageStr = (String) paramMap.get("page");
+        int page = Integer.parseInt(pageStr);
+//        每页多少
+        String limitStr = (String) paramMap.get("limit");
+        int limit = Integer.parseInt(limitStr);
+
+        Page<Schedule> pageSchedule = scheduleService
+                .findSchedule(page,limit,scheduleQueryVo);
+
+        return Result.ok(pageSchedule);
+    }
+
+
+
+    @ApiOperation(value = "上传排班")
+    @PostMapping("/saveSchedule")
+    public Result saveSchedule(HttpServletRequest request){
+
+//        1、获取请求参数map
+        Map<String, String[]> requestMap = request.getParameterMap();
+//        2、将<String, String[]>类型的数组转换为<String, Object>类型的数组
+        Map<String, Object> paramMap = HttpRequestHelper.switchMap(requestMap);
+
+        //4 获取医院系统传递过来的签名,签名进行了MD5加密
+        String hospSign = (String)paramMap.get("sign");
+        //5 根据传递过来医院编码，查询医院设置数据库，查询签名
+        String hoscode = (String)paramMap.get("hoscode");
+//        6 通过医院编码获取签名
+        String signKey = hospitalSetService.getSignKey(hoscode);
+        //7 把数据库查询签名进行MD5加密
+        String signKeyMd5 = MD5.encrypt(signKey);
+        //8 判断签名是否一致 不一致抛出签名错误
+        if(!hospSign.equals(signKeyMd5)) {
+            throw new YyghException(ResultCodeEnum.SIGN_ERROR);
+        }
+
+//        上传科室
+        scheduleService.saveSchedule(paramMap);
+        return Result.ok();
+    }
+
+
+
     @ApiOperation(value = "删除科室")
     @PostMapping("/department/remove")
     public Result removeDepartment(HttpServletRequest request){
-
         //        1、获取请求参数map
         Map<String, String[]> requestMap = request.getParameterMap();
 //        2、将<String, String[]>类型的数组转换为<String, Object>类型的数组
@@ -102,7 +205,8 @@ public class ApiController {
         String limitStr = (String) paramMap.get("limit");
         int limit = Integer.parseInt(limitStr);
 
-       Page<Department> pageDepartment = departmentService.findDepartment(page,limit,departmentQueryVo);
+       Page<Department> pageDepartment = departmentService
+               .findDepartment(page,limit,departmentQueryVo);
 
         return Result.ok(pageDepartment);
     }
@@ -136,39 +240,9 @@ public class ApiController {
     }
 
 
-
-    @ApiOperation(value = "查询医院")
-    @PostMapping("/hospital/show")
-    public Result getHospital(HttpServletRequest request){
-
-//        1、获取请求参数map
-        Map<String, String[]> requestMap = request.getParameterMap();
-//        2、将<String, String[]>类型的数组转换为<String, Object>类型的数组
-        Map<String, Object> paramMap = HttpRequestHelper.switchMap(requestMap);
-
-        //4 获取医院系统传递过来的签名,签名进行了MD5加密
-        String hospSign = (String)paramMap.get("sign");
-        //5 根据传递过来医院编码，查询医院设置数据库，查询签名
-        String hoscode = (String)paramMap.get("hoscode");
-//        6 通过医院编码获取签名
-        String signKey = hospitalSetService.getSignKey(hoscode);
-        //7 把数据库查询签名进行MD5加密
-        String signKeyMd5 = MD5.encrypt(signKey);
-        //8 判断签名是否一致 不一致抛出签名错误
-        if(!hospSign.equals(signKeyMd5)) {
-            throw new YyghException(ResultCodeEnum.SIGN_ERROR);
-        }
-
-//        9 根据传递过来的医院编码  获取医院信息
-        Hospital hospital = hospitalService.getHospital(hoscode);
-
-        return Result.ok(hospital);
-    }
-
-    @PostMapping("/saveHospital")
     @ApiOperation(value = "上传医院")
+    @PostMapping("/saveHospital")
     public Result saveHospital(HttpServletRequest request){
-
 //        1、获取请求参数map
         Map<String, String[]> requestMap = request.getParameterMap();
 //        2、将<String, String[]>类型的数组转换为<String, Object>类型的数组
@@ -195,5 +269,34 @@ public class ApiController {
 //        3、进行保存
         hospitalService.save(paramMap);
         return Result.ok();
+    }
+
+
+
+    @ApiOperation(value = "查询医院")
+    @PostMapping("/hospital/show")
+    public Result getHospital(HttpServletRequest request){
+//        1、获取请求参数map
+        Map<String, String[]> requestMap = request.getParameterMap();
+//        2、将<String, String[]>类型的数组转换为<String, Object>类型的数组
+        Map<String, Object> paramMap = HttpRequestHelper.switchMap(requestMap);
+
+        //4 获取医院系统传递过来的签名,签名进行了MD5加密
+        String hospSign = (String)paramMap.get("sign");
+        //5 根据传递过来医院编码，查询医院设置数据库，查询签名
+        String hoscode = (String)paramMap.get("hoscode");
+//        6 通过医院编码获取签名
+        String signKey = hospitalSetService.getSignKey(hoscode);
+        //7 把数据库查询签名进行MD5加密
+        String signKeyMd5 = MD5.encrypt(signKey);
+        //8 判断签名是否一致 不一致抛出签名错误
+        if(!hospSign.equals(signKeyMd5)) {
+            throw new YyghException(ResultCodeEnum.SIGN_ERROR);
+        }
+
+//        9 根据传递过来的医院编码  获取医院信息
+        Hospital hospital = hospitalService.getHospital(hoscode);
+
+        return Result.ok(hospital);
     }
 }
