@@ -38,7 +38,7 @@ public class HospitalServiceImpl implements HospitalService {
             hospital.setCreateTime(hospitalExist.getCreateTime());
             hospital.setUpdateTime(new Date());
             hospital.setIsDeleted(0);
-            hospitolRepository.save(hospital);
+            hospitolRepository.save(hospitalExist);
         } else {
 //            5、如果不存在，进行添加
 //            这四个字段是医院系统上传的map里没有的字段
