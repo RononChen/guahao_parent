@@ -3,6 +3,7 @@ package com.wei.guahao.cmn;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
@@ -11,6 +12,8 @@ import org.springframework.context.annotation.ComponentScan;
 
 //一定要设置mapper的扫描路径
 @MapperScan(value = {"com.wei.guahao.cmn.mapper"})
+//开启nacos
+@EnableDiscoveryClient
 public class DictApplication {
 
 

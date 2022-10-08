@@ -2,6 +2,7 @@ package com.wei.guahao.config;
 
 
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
+import com.wei.yygh.cmn.FeignDictController;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -22,5 +23,7 @@ public class HospitalSetConfig {
     public PaginationInterceptor paginationInterceptor(){
         return new PaginationInterceptor();
     }
+
+
 
 }

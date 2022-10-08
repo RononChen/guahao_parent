@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-@Api("数据字典模块")
+@Api(tags = "数据字典模块")
 @RestController
 @RequestMapping("/admin/cmn/dict")
 //跨域访问
@@ -50,4 +50,27 @@ public class DictController {
         dictService.importData(file);
         return Result.ok();
     }
+
+    @ApiOperation(value = "查询医院等级")
+    @GetMapping("/getHospitalType/{dictCode}/{value}")
+    public String getHospitalType(@PathVariable("dictCode") String dictCode,
+                                  @PathVariable("value") Long value){
+        String hospitalType = dictService.getName(dictCode,value);
+        return hospitalType;
+    };
+
+    @ApiOperation(value = "查询地址")
+    @GetMapping("/getAdderss/{value}")
+    public String getAdderss(@PathVariable("value")Long value){
+        String hospitalAddress = dictService.getName("",value);
+        return hospitalAddress;
+    };
+
+    @ApiOperation(value = "根据dictCode获取下级节点")
+    @GetMapping(value = "/findByDictCode/{dictCode}")
+    public Result<List<Dict>> findByDictCode(@PathVariable("dictCode") String dictCode){
+        List<Dict> dictList = dictService.findByDictCode(dictCode);
+        return Result.ok(dictList);
+    }
+
 }

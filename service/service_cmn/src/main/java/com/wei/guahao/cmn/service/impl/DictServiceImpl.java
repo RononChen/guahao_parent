@@ -5,6 +5,7 @@ import com.alibaba.excel.EasyExcel;
 import com.atguigu.yygh.model.cmn.Dict;
 
 import com.atguigu.yygh.vo.cmn.DictEeVo;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
@@ -15,8 +16,8 @@ import com.wei.guahao.cmn.service.DictService;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +30,9 @@ import java.util.List;
 
 @Service
 public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
+
+
+
 
     @Override
     @Cacheable(value = "dict",keyGenerator = "keyGenerator")
@@ -114,6 +118,49 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+//    查询医院等级 或者地址
+    @Override
+    public String getName(String dictCode, Long value) {
+//        如果dictCode为空 我们就根据value查询地址
+        if (StringUtils.isEmpty(dictCode)){
+            QueryWrapper<Dict> wrapper = new QueryWrapper<>();
+            wrapper.eq("value",value);
+            Dict dict = baseMapper.selectOne(wrapper);
+            return dict.getName();
+
+        }else {
+//            如果dictCode不为空 我们就根据dictCode和value查询医院等级
+//            1 根据dictCode查询出来这条dict 获取到id
+            QueryWrapper<Dict> wrapper = new QueryWrapper<>();
+            wrapper.eq("dict_code",dictCode);
+            Dict dict = baseMapper.selectOne(wrapper);
+
+//            2 然后根据parent_id 和 value 获取到这条dict 返回name
+            Long parent_id = dict.getId();
+            QueryWrapper<Dict> wrapperFinal = new QueryWrapper<>();
+            wrapperFinal.eq("parent_id",parent_id);
+            wrapperFinal.eq("value",value);
+            Dict dictFinal = baseMapper.selectOne(wrapperFinal);
+            return dictFinal.getName();
+
+        }
+    }
+
+//    根据dictCode获取下级节点
+    @Override
+    public List<Dict> findByDictCode(String dictCode) {
+
+//        1 根据dictCode获取到这一个dict
+        QueryWrapper<Dict> wrapper = new QueryWrapper<>();
+        wrapper.eq("dict_code",dictCode);
+        Dict dict = baseMapper.selectOne(wrapper);
+
+//        2 根据dict的ID获取所有的字节点
+        List<Dict> dictList = this.selectChildData(dict.getId());
+
+        return dictList;
     }
 
 }

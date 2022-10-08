@@ -17,4 +17,10 @@ public interface DictService extends IService<Dict> {
 
 //    导入数据字典
     void importData(MultipartFile file);
+
+//    查询医院等级 或者地址
+    String getName(String dictCode, Long value);
+
+//    根据dictCode获取下级节点
+    List<Dict> findByDictCode(String dictCode);
 }

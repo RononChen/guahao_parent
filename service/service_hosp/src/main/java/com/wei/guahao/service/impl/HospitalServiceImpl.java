@@ -1,10 +1,18 @@
 package com.wei.guahao.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+
 import com.atguigu.yygh.model.hosp.Hospital;
+import com.atguigu.yygh.vo.hosp.HospitalQueryVo;
 import com.wei.guahao.repository.HospitolRepository;
+
+
 import com.wei.guahao.service.HospitalService;
+
+import com.wei.yygh.cmn.FeignDictController;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -17,6 +25,12 @@ public class HospitalServiceImpl implements HospitalService {
 //    导入HospitolRepository
     @Autowired
     private HospitolRepository hospitolRepository;
+
+//    导入DictFeignClient
+    @Autowired
+    private FeignDictController feignDictController;
+
+
 
 //    保存医院信息
     @Override
@@ -55,6 +69,60 @@ public class HospitalServiceImpl implements HospitalService {
     public Hospital getHospital(String hoscode) {
         Hospital hospital = hospitolRepository.getHospitalByHoscode(hoscode);
         return hospital;
+    }
+
+//    分页查询医院信息
+    @Override
+    public Page<Hospital> findHospitalPageList(Integer page,
+                                               Integer limit,
+                                               HospitalQueryVo hospitalQueryVo) {
+//        分页信息
+        Pageable pageable = PageRequest.of(page - 1,limit);
+
+        Hospital hospital = new Hospital();
+//        使用BeanUtils将hospitalQueryVo转换成实体hospital对象
+        BeanUtils.copyProperties(hospitalQueryVo,hospital);
+
+//        匹配的规则信息
+        ExampleMatcher exampleMatcher = ExampleMatcher.matching()
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
+                .withIgnoreCase(true);
+
+//        封装一个Example
+        Example<Hospital> example = Example.of(hospital, exampleMatcher);
+//        分页查询医院信息
+        Page<Hospital> pageHospital = hospitolRepository.findAll(example, pageable);
+
+
+        pageHospital.getContent().stream().forEach(item ->{
+            this.getHospitalType(item);
+        });
+
+
+        return pageHospital;
+    }
+
+
+    private Hospital getHospitalType(Hospital hospital) {
+
+        String hostypeStr = hospital.getHostype();
+        long hostype = Long.parseLong(hostypeStr);
+        String hostypeName = feignDictController.getHospitalType("Hostype", hostype);
+        hospital.getParam().put("hostypeName",hostypeName);
+
+        long city = Long.parseLong(hospital.getCityCode());
+        long province = Long.parseLong(hospital.getProvinceCode());
+        long district = Long.parseLong(hospital.getDistrictCode());
+        String cityName = feignDictController.getAdderss(city);
+        String provinceName = feignDictController.getAdderss(province);
+        String districtName = feignDictController.getAdderss(district);
+
+        String fullAddress = provinceName+cityName+districtName;
+
+        hospital.getParam().put("fullAddress",fullAddress);
+
+        return hospital;
+
     }
 
 }
